@@ -36,6 +36,7 @@ def check_availability():
     driver = webdriver.Firefox(options=options)
     driver.get("https://logement.cesal-residentiel.fr/espace-resident/cesal_login.php?so=14175&action=logout")
 
+
     driver.implicitly_wait(2)
 
     sidentifier_button = driver.find_element(by=By.ID, value="button_connexion")
