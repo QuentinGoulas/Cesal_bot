@@ -28,7 +28,7 @@ def check_availability():
     login_mdp = "Ascfbrtoilkxc8@"
 
 
-    driver = webdriver.Firefox();
+    driver = webdriver.Firefox()
     driver.get("https://logement.cesal-residentiel.fr/espace-resident/cesal_login.php?so=14175&action=logout")
 
     driver.implicitly_wait(2)
