@@ -1,5 +1,6 @@
 from selenium import webdriver
 from selenium.webdriver.common.by import By
+from selenium.webdriver.firefox.options import Options
 from time import sleep, time
 import requests
 
@@ -25,10 +26,14 @@ def send_telegram_notification(bot_token, chat_id, message):
 
 def check_availability():
     login_email = "goulasquentin@gmail.com"
-    login_mdp = "Ascfbrtoilkxc8@"
+    login_mdp = "MOT DE PASSE"
 
+    options = Options()
+    options.add_argument('--headless')
+    # options.add_argument('--no-sandbox')
+    # options.add_argument('--disable-dev-shm-usage')
 
-    driver = webdriver.Firefox()
+    driver = webdriver.Firefox(options=options)
     driver.get("https://logement.cesal-residentiel.fr/espace-resident/cesal_login.php?so=14175&action=logout")
 
     driver.implicitly_wait(2)
@@ -81,8 +86,8 @@ if __name__ == '__main__':
     time_a = time()
     time_s = time()
 
-    bot_token = '7283120075:AAE8usg0ZiOfIdQRckbStT5gN8IaUyiYGVM'
-    chat_id = '-4224874172'
+    bot_token = 'BOT-TOKEN'
+    chat_id = 'CHAT-ID'
     send_telegram_notification(bot_token, '-4224874172', 'bot lancé, il envoie une notif de statu chaque ' + str(delay_programm_status) + 'secondes et il check la dispo des apparts toutes les ' + str(delay_availability) + 'secondes')
     message_dispo = 'Un appart est dispo !!!! Ou une erreur est apparue dans le programme'
     message_erreur = 'Une erreur est apparue lors de la vérification de la disponibilité'
