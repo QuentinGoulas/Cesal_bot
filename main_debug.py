@@ -29,7 +29,7 @@ def check_availability():
     login_mdp = "Ascfbrtoilkxc8!@!"
 
     options = Options()
-    options.add_argument('--headless')
+    # options.add_argument('--headless')
     # options.add_argument('--no-sandbox')
     # options.add_argument('--disable-dev-shm-usage')
 
@@ -68,21 +68,23 @@ def check_availability():
     for k in range(1,7):
         disp_text = driver.find_element(by=By.ID, value="residence_" + str(k) + "_logements_disponibles").text
         if disp_text == "Aucun logement disponible":
-            logement_non_dispo = logement_non_dispo + 1;
+            logement_non_dispo = logement_non_dispo + 1
+        else:
+            rez_dispo = rez_dispo + str(k) + ","
     
     driver.quit()
 
     if logement_non_dispo < 6:
         print("IL Y A UN LOGEMENT DISPONIBLE !, ou une erreur est apparue")
-        return True
+        return(True, rez_dispo)
     elif logement_non_dispo == 6:
         print("Il n'y a pas de logement disponible :-(")
-        return False
+        return (False, str(0))
     
 
 
 if __name__ == '__main__':
-    delay_availability = 10
+    delay_availability = 20
     delay_programm_status = 30
     time_a = time()
     time_s = time()
@@ -98,10 +100,11 @@ if __name__ == '__main__':
         try:
             if time() - time_a > delay_availability:
                 time_a = time()
-                if check_availability():
-                    print(message_dispo)
+                available, rez_available = check_availability()
+                if available:
+                    print(message_dispo + rez_available)
                 else:
-                    print('Pas d_appart')
+                    print('Pas d_appart' + rez_available)
         except:
             print(message_erreur)
         if time() - time_s > delay_programm_status:
