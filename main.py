@@ -86,8 +86,8 @@ def check_availability():
 
 
 if __name__ == '__main__':
-    delay_availability = 20
-    delay_programm_status = 20
+    delay_availability = 60
+    delay_programm_status = 60*30
     time_a = time()
     time_s = time()
 
@@ -95,7 +95,7 @@ if __name__ == '__main__':
     # chat_id = '7059050163'
     chat_id = '-4224874172'
     error_chat_id = '7059050163'
-    send_telegram_notification(bot_token, error_chat_id, 'bot lancé')
+    send_telegram_notification(bot_token, chat_id, 'bot lancé')
     message_dispo = 'Un appart est dispo !!!! Ou une erreur est apparue dans le programme '
     message_erreur = 'Une erreur est apparue lors de la vérification de la disponibilité'
 
