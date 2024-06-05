@@ -3,6 +3,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.firefox.options import Options
 from time import sleep, time
 import requests
+from requests.exceptions import SSLError
 
 def click_button(driver, button_text):
     buttons = driver.find_elements(by=By.TAG_NAME, value="button")
@@ -18,18 +19,27 @@ def send_telegram_notification(bot_token, chat_id, message):
         'chat_id': chat_id,
         'text': message
     }
-    response = requests.post(url, data=payload)
-    if response.status_code == 200:
-        print("Message envoyé avec succès.")
-    else:
-        print(f"Erreur lors de l'envoi du message : {response.status_code}")
+    try:
+        response = requests.post(url, data=payload)
+        response.raise_for_status()
+        print(response.json)
+    except SSLError as e:
+        print(f"SSL error occured: {e}")
+    except requests.exceptions.RequestException as e:
+        print(f"Request error occured: {e}")
+    finally:
+        if response.status_code == 200:
+            print("Message envoyé avec succès.")
+        else:
+            print(f"Erreur lors de l'envoi du message : {response.status_code}")
 
 def check_availability():
     login_email = "goulasquentin@gmail.com"
     login_mdp = "Ascfbrtoilkxc8!@!"
 
     options = Options()
-    # options.add_argument('--headless')
+    options.set_preference("permissions.default.image", 2)
+    options.add_argument('--headless')
     # options.add_argument('--no-sandbox')
     # options.add_argument('--disable-dev-shm-usage')
 
@@ -37,7 +47,7 @@ def check_availability():
     driver.get("https://logement.cesal-residentiel.fr/espace-resident/cesal_login.php?so=14175&action=logout")
 
 
-    driver.implicitly_wait(2)
+    driver.implicitly_wait(30)
 
     sidentifier_button = driver.find_element(by=By.ID, value="button_connexion")
     sidentifier_button.click()
@@ -63,37 +73,40 @@ def check_availability():
     click_button(driver, "Valider")
     sleep(2)
 
-    logement_non_dispo = 0;
+    rez_non_dispo = 0;
 
     for k in range(1,7):
         disp_text = driver.find_element(by=By.ID, value="residence_" + str(k) + "_logements_disponibles").text
         if disp_text == "Aucun logement disponible":
-            logement_non_dispo = logement_non_dispo + 1
+            rez_non_dispo = rez_non_dispo + 1
         else:
             rez_dispo = rez_dispo + str(k) + ","
     
     driver.quit()
 
-    if logement_non_dispo < 6:
+    if rez_non_dispo < 6:
         print("IL Y A UN LOGEMENT DISPONIBLE !, ou une erreur est apparue")
         return(True, rez_dispo)
-    elif logement_non_dispo == 6:
-        print("Il n'y a pas de logement disponible :-(")
+    elif rez_non_dispo == 6:
+        print("Il n'y a pas de logement disponible")
         return (False, str(0))
+
     
 
 
 if __name__ == '__main__':
     delay_availability = 20
-    delay_programm_status = 30
+    delay_programm_status = 20
     time_a = time()
     time_s = time()
 
     bot_token = '7283120075:AAE8usg0ZiOfIdQRckbStT5gN8IaUyiYGVM'
-    chat_id = '-4224874172'
-    print('bot lancé, il envoie une notif de statu chaque ' + str(delay_programm_status) + 'secondes et il check la dispo des apparts toutes les ' + str(delay_availability) + 'secondes')
-    message_dispo = 'Un appart est dispo !!!! Ou une erreur est apparue dans le programme'
-    message_erreur = 'Une erreur est apparue lors de la vérification de la disponibilité'
+    chat_id = '7059050163'
+    # chat_id = '-4224874172'
+    error_chat_id = '7059050163'
+    send_telegram_notification(bot_token, chat_id, 'bot lancé')
+    message_dispo = 'Un appart est dispo !!!! Ou une erreur est apparue dans le programme '
+    message_erreur = 'Une erreur est apparue lors de la verif'
 
     while True:
         sleep(2)
@@ -102,12 +115,12 @@ if __name__ == '__main__':
                 time_a = time()
                 available, rez_available = check_availability()
                 if available:
-                    print(message_dispo + rez_available)
+                    send_telegram_notification(bot_token, chat_id, message_dispo + 'dans la ou les rezs ' + rez_available)
                 else:
-                    print('Pas d_appart' + rez_available)
+                    print('Pas d_appart')
         except:
-            print(message_erreur)
+            send_telegram_notification(bot_token, error_chat_id, message_erreur)
         if time() - time_s > delay_programm_status:
             time_s = time()
-            print('status ok')
+            send_telegram_notification(bot_token, error_chat_id, 'status ok')
 

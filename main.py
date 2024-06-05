@@ -18,7 +18,7 @@ def send_telegram_notification(bot_token, chat_id, message):
         'chat_id': chat_id,
         'text': message
     }
-    response = requests.post(url, data=payload)
+    response = requests.post(url, data=payload, verify=False)
     if response.status_code == 200:
         print("Message envoyé avec succès.")
     else:
@@ -97,7 +97,7 @@ if __name__ == '__main__':
     error_chat_id = '7059050163'
     send_telegram_notification(bot_token, chat_id, 'bot lancé')
     message_dispo = 'Un appart est dispo !!!! Ou une erreur est apparue dans le programme '
-    message_erreur = 'Une erreur est apparue lors de la vérification de la disponibilité'
+    message_erreur = 'Une erreur est apparue lors de la verif'
 
     while True:
         sleep(2)
