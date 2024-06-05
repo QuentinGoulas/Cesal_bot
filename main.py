@@ -100,27 +100,39 @@ if __name__ == '__main__':
     time_a = time()
     time_s = time()
 
+    status_counter = 0
+
     bot_token = '7283120075:AAE8usg0ZiOfIdQRckbStT5gN8IaUyiYGVM'
     # chat_id = '7059050163'
     chat_id = '-4224874172'
     error_chat_id = '7059050163'
-    send_telegram_notification(bot_token, chat_id, 'bot lancé')
+    send_telegram_notification(bot_token, error_chat_id, 'bot lancé')
     message_dispo = 'Un appart est dispo !!!! Ou une erreur est apparue dans le programme '
     message_erreur = 'Une erreur est apparue lors de la verif'
 
     while True:
         sleep(2)
+        
         try:
             if time() - time_a > delay_availability:
                 time_a = time()
                 available, rez_available = check_availability()
                 if available:
                     send_telegram_notification(bot_token, chat_id, message_dispo + 'dans la ou les rezs ' + rez_available)
+                    send_telegram_notification(bot_token, error_chat_id, message_dispo + 'dans la ou les rezs ' + rez_available)
+                    print(message_dispo + 'dans la ou les rezs ' + rez_available)
                 else:
                     print('Pas d_appart')
+                status_counter = status_counter + 1
         except:
-            send_telegram_notification(bot_token, error_chat_id, message_erreur)
+            try:
+                send_telegram_notification(bot_token, error_chat_id, message_erreur + " " + str(available) + " " + str(rez_available))
+            except:
+                send_telegram_notification(bot_token, error_chat_id, message_erreur)
+            print(message_erreur)
         if time() - time_s > delay_programm_status:
             time_s = time()
-            send_telegram_notification(bot_token, error_chat_id, 'status ok')
+            print(f"status ok, {status_counter} times checked")
+            send_telegram_notification(bot_token, error_chat_id, f"status ok, {status_counter} times checked")
+            status_counter = 0
 
