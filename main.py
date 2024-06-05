@@ -3,6 +3,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.firefox.options import Options
 from time import sleep, time
 import requests
+from requests.exceptions import SSLError
 
 def click_button(driver, button_text):
     buttons = driver.find_elements(by=By.TAG_NAME, value="button")
@@ -18,11 +19,19 @@ def send_telegram_notification(bot_token, chat_id, message):
         'chat_id': chat_id,
         'text': message
     }
-    response = requests.post(url, data=payload, verify=False)
-    if response.status_code == 200:
-        print("Message envoyé avec succès.")
-    else:
-        print(f"Erreur lors de l'envoi du message : {response.status_code}")
+    try:
+        response = requests.post(url, data=payload)
+        response.raise_for_status()
+        print(response.json)
+    except SSLError as e:
+        print(f"SSL error occured: {e}")
+    except requests.exceptions.RequestException as e:
+        print(f"Request error occured: {e}")
+    finally:
+        if response.status_code == 200:
+            print("Message envoyé avec succès.")
+        else:
+            print(f"Erreur lors de l'envoi du message : {response.status_code}")
 
 def check_availability():
     login_email = "goulasquentin@gmail.com"
@@ -86,8 +95,8 @@ def check_availability():
 
 
 if __name__ == '__main__':
-    delay_availability = 60
-    delay_programm_status = 60*30
+    delay_availability = 20
+    delay_programm_status = 20
     time_a = time()
     time_s = time()
 
